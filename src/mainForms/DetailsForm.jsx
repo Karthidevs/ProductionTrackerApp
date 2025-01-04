@@ -66,7 +66,7 @@ export const DetailsForm = () => {
     <div>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className=" h-full p-2  w-full grid grid-cols-2    items-center"
+        className=" h-full bg-slate-200 p-2  w-full grid grid-cols-2    items-center"
       >
         <div className="space-y-4 ">
           <div className="flex w-full gap-x-11 justify-center items-center">
