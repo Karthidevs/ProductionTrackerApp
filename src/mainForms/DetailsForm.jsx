@@ -21,6 +21,10 @@ export const DetailsForm = () => {
   const { user, isSignedIn } = useUser();
 
   const review = watch("reviewID");
+  const resetTime = useCallback(() => {
+    pause();
+    setTimerStarted(false);
+  }, [pause]);
   useEffect(() => {
     if (review && !timerStarted) {
       setTimerStarted(true);
@@ -36,10 +40,6 @@ export const DetailsForm = () => {
     }
   }, [review, timerStarted, start, resetTime, timeReset]);
 
-  const resetTime = useCallback(() => {
-    pause();
-    setTimerStarted(false);
-  }, [pause]);
   const onSubmit = (d) => {
     const time = `${hours}:${minutes}:${seconds}`;
     if (isSignedIn) {
