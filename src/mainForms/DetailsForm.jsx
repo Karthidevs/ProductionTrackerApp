@@ -1,49 +1,47 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { Button } from "../components/Button";
 import { getUserData, insertData } from "../lib/database";
 import { useUser } from "@clerk/clerk-react";
+import { useStopwatch } from "react-timer-hook";
 
 export const DetailsForm = () => {
   const { register, handleSubmit, reset, watch } = useForm();
-  // const { pending } = useFormStatus();
   const [timerStarted, setTimerStarted] = useState(false);
-  const [seconds, setSeconds] = useState(0);
-  const ref = useRef(null);
+  const {
+    seconds,
+    minutes,
+    hours,
+    reset: timeReset,
+    start,
+    pause,
+  } = useStopwatch();
   const { user, isSignedIn } = useUser();
 
   const review = watch("reviewID");
-
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const sec = Math.floor(seconds % 60);
-
   useEffect(() => {
     if (review && !timerStarted) {
       setTimerStarted(true);
-      ref.current = setInterval(() => {
-        setSeconds((prev) => prev + 1);
-      }, 1000);
+      timeReset();
+      start();
     }
 
     if (!review && timerStarted) {
-      resetTime();
+      if (confirm("Are you sure want to end the existing time")) {
+        resetTime();
+        resetTime();
+      }
     }
-  }, [review, timerStarted]);
+  }, [review, timerStarted, start, resetTime, timeReset]);
 
-  const resetTime = () => {
-    clearInterval(ref.current);
-    setSeconds(0);
+  const resetTime = useCallback(() => {
+    pause();
     setTimerStarted(false);
-  };
-
+  }, [pause]);
   const onSubmit = (d) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const sec = Math.floor(seconds % 60);
-    const time = `${hours}:${minutes}:${sec}`;
+    const time = `${hours}:${minutes}:${seconds}`;
     if (isSignedIn) {
       insertData(d, user, time);
       resetTime();
@@ -238,7 +236,7 @@ export const DetailsForm = () => {
               <p className="mb-1">:</p>
               <p>{` ${minutes < 10 ? "0" + minutes : minutes}`}</p>
               <p className="mb-1">:</p>
-              <p> {` ${sec < 10 ? "0" + sec : sec}`}</p>
+              <p> {` ${seconds < 10 ? "0" + seconds : seconds}`}</p>
             </div>
           </div>
         </div>
